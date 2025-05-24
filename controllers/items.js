@@ -30,22 +30,26 @@ const getSingle = async (req, res) => {
 };
 
 const createItem = async (req, res) => {
-  //#swagger.tags=['items']
-  const  item = {
-    name: req.body.name,
-    quantity: parseInt(req.body.quantity, 10), // convert string to number
-    price: parseFloat(req.body.price), // convert string to decimal
-    description: req.body.description,
-    category: req.body.category,
-    supplier: req.body.supplier,
-    lastUpdated: new Date(req.body.lastUpdated) // convert string to Date
-  };
+  try{
+      //#swagger.tags=['items']
+    const  item = {
+      name: req.body.name,
+      quantity: parseInt(req.body.quantity, 10), // convert string to number
+      price: parseFloat(req.body.price), // convert string to decimal
+      description: req.body.description,
+      category: req.body.category,
+      supplier: req.body.supplier,
+      lastUpdated: new Date(req.body.lastUpdated) // convert string to Date
+    };
 
-  const response = await mongodb.getDb().collection('items').insertOne(item);
-  if (response.acknowledged) {
-    res.status(204).send();
-  } else {
-    res.status(500).json(response.error || 'Some error occured while creating the item.');
+    const response = await mongodb.getDb().collection('items').insertOne(item);
+    if (response.acknowledged) {
+      res.status(204).send();
+    } else {
+      res.status(500).json(response.error || 'Some error occured while creating the item.');
+    }
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to create item', error: err.message });
   }
 };
 
@@ -53,37 +57,45 @@ const updateItem = async (req, res) => {
   if(!ObjectId.isValid(req.params.id)) {
     return res.status(400).json("Must use a valid item id.");
   }
-  //#swagger.tags=['items']
-  const itemId = new ObjectId(req.params.id);
-  const  item = {
-    name: req.body.name,
-    quantity: parseInt(req.body.quantity, 10), // convert string to number
-    price: parseFloat(req.body.price), // convert string to decimal
-    description: req.body.description,
-    category: req.body.category,
-    supplier: req.body.supplier,
-    lastUpdated: new Date(req.body.lastUpdated) // convert string to Date
-  };
+  try {
+      //#swagger.tags=['items']
+    const itemId = new ObjectId(req.params.id);
+    const  item = {
+      name: req.body.name,
+      quantity: parseInt(req.body.quantity, 10), // convert string to number
+      price: parseFloat(req.body.price), // convert string to decimal
+      description: req.body.description,
+      category: req.body.category,
+      supplier: req.body.supplier,
+      lastUpdated: new Date(req.body.lastUpdated) // convert string to Date
+    };
 
-  const response = await mongodb.getDb().collection('items').replaceOne({_id: itemId}, item);
-  if (response.modifiedCount > 0) {
-    res.status(204).send();
-  } else {
-    res.status(500).json(response.error || 'Some error occured while updating the item.');
-  }
+    const response = await mongodb.getDb().collection('items').replaceOne({_id: itemId}, item);
+    if (response.modifiedCount > 0) {
+      res.status(204).send();
+    } else {
+      res.status(500).json(response.error || 'Some error occured while updating the item.');
+    } 
+  } catch (err) {
+      res.status(500).json({ message: 'Failed to update item', error: err.message });
+    }
 };
 
 const deleteItem = async (req, res) => {
   if(!ObjectId.isValid(req.params.id)) {
     return res.status(400).json("Must use a valid item id.");
   }
-  //#swagger.tags=['items']
-  const itemId = new ObjectId(req.params.id);
-  const response  = await mongodb.getDb().collection('items').deleteOne({_id: itemId});
-  if (response.deletedCount > 0) {
-    res.status(204).send();
-  } else {
-    res.status(500).json(response.error || 'Some error occured while deleting the item.');
+  try {
+    //#swagger.tags=['items']
+    const itemId = new ObjectId(req.params.id);
+    const response  = await mongodb.getDb().collection('items').deleteOne({_id: itemId});
+    if (response.deletedCount > 0) {
+      res.status(204).send();
+    } else {
+      res.status(500).json(response.error || 'Some error occured while deleting the item.');
+    }
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to delete item', error: err.message });
   }
 };
 
