@@ -6,6 +6,7 @@ const mongodb = require('./db/database');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const GitHubStrategy = require('passport-github2').Strategy;
 const cors = require('cors');
 
@@ -19,6 +20,10 @@ app
         secret: 'secret',
         resave: false,
         saveUninitialized: true,
+        store: MongoStore.create({
+            mongoUrl: process.env.MONGODB_URI,
+            ttl: 14 * 24 * 60 * 60 // 14 days
+        })
     }))
     .use(passport.initialize())
     .use(passport.session())
