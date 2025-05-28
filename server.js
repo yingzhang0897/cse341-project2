@@ -7,6 +7,7 @@ const mongodb = require('./db/database');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const GitHubStrategy = require('passport-github2').Strategy;
 const cors = require('cors');
 
@@ -21,7 +22,15 @@ app
         saveUninitialized: true,
     }))
     .use(passport.initialize())
-    .use(passport.session())
+    .use(passport.session({
+        secret: 'secret',
+        resave: false,
+        saveUninitialized: true,
+        store: MongoStore.create({
+            mongoUrl: process.env.MONGODB_URI,
+            ttl: 14 * 24 * 60 * 60 // Sessions live for 14 days
+        })
+    }))
     .use((req, res, next) => {
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); 
         res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Z-Key, Authorization'); 
