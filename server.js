@@ -22,15 +22,7 @@ app
         saveUninitialized: true,
     }))
     .use(passport.initialize())
-    .use(passport.session({
-        secret: 'secret',
-        resave: false,
-        saveUninitialized: true,
-        store: MongoStore.create({
-            mongoUrl: process.env.MONGODB_URI,
-            ttl: 14 * 24 * 60 * 60 // Sessions live for 14 days
-        })
-    }))
+    .use(passport.session())
     .use((req, res, next) => {
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); 
         res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Z-Key, Authorization'); 
@@ -53,7 +45,7 @@ passport.deserializeUser((user, done) => { done(null, user);});
 app.get('/', (req,res) => {res.send(req.session.user !== undefined ? `Logged in as ${req.session.user.displayName}` : "Logged out")});
 
 app.get('/github/callback', passport.authenticate('github', { 
-    failureRedirect: '/api-docs', session: false}), (req, res) => {
+    failureRedirect: '/api-docs'}), (req, res) => {
         req.session.user = req.user;
         res.redirect('/');
     });
